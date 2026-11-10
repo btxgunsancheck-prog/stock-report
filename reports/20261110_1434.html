@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>종가매매 CVD·OBV 스캐너 리포트</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0;
+         background: #fff; color: #222; }
+  /* PC: 왼쪽 위 표, 왼쪽 아래 뉴스, 오른쪽 차트 (키움판과 같은 배치) */
+  #page { display: grid; grid-template-columns: 560px minmax(0, 1fr);
+           grid-template-rows: auto 1fr; grid-template-areas: "list chart" "news chart";
+           height: 100vh; }
+  #list { grid-area: list; border-right: 1px solid #ddd; }
+  #news { grid-area: news; overflow-y: auto; border-right: 1px solid #ddd; }
+  #list h2 { font-size: 15px; padding: 10px; margin: 0; background: #fafafa; }
+  .summary { font-size: 12px; color: #555; padding: 0 10px 8px; margin: 0; background: #fafafa; }
+  .warn { font-size: 12px; color: #b00; padding: 6px 10px; margin: 0; }
+  h2.sec { font-size: 14px; padding: 10px 10px 4px; margin: 0; background: #fff; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #eee; white-space: nowrap; }
+  th { background: #f5f5f5; position: sticky; top: 0; }
+  tr.row { cursor: pointer; }
+  tr.row:hover { background: #f0f8ff; }
+  tr.row.selected { background: #dbeeff; }
+  .empty { font-size: 12px; color: #999; padding: 4px 10px; margin: 0; }
+  #chart { grid-area: chart; overflow: auto; padding: 8px; }
+  #chart h3 { font-size: 15px; margin: 4px 8px; }
+  #chart h3 small { color: #888; font-weight: normal; font-size: 12px; }
+  .chart-div { display: none; }
+  .chart-div.active { display: block; }
+  .news-box { margin: 12px 4px 20px; padding: 12px 16px; border-top: 2px solid #ddd; }
+  .news-box h3 { font-size: 14px; margin: 0 0 10px; }
+  .news-stock { margin-bottom: 14px; }
+  .news-stock h4 { font-size: 13px; margin: 0 0 4px; color: #333; }
+  .news-list { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+  .news-list li { padding: 4px 0; border-bottom: 1px solid #f2f2f2; display: flex;
+                   justify-content: space-between; gap: 12px; }
+  .news-list a { color: #1a0dab; text-decoration: none; }
+  .news-date { color: #999; white-space: nowrap; }
+  .news-empty { color: #999; font-size: 12px; margin: 0; }
+  .entry-note { font-size: 11px; color: #888; padding: 8px 10px; margin: 0; background: #fafafa; }
+  /* 휴대폰: 표 → 차트 → 뉴스 순서로 위아래로 */
+  @media (max-width: 900px) {
+    #page { display: block; height: auto; }
+    #list, #news { border-right: none; }
+    #chart { padding: 4px 0; border-top: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="list">
+    <h2>종가매매 스캔 (2026-11-10 14:34 장중 시세)</h2>
+    <p class="summary">951종목 스캔 (판정 949) · 확정 0 · 관심 0</p>
+    
+    <h2 class="sec">확정 신호</h2>
+    <p class="empty">오늘 확정 신호가 없습니다.</p>
+    <h2 class="sec">관심종목 (돌파 임박)</h2>
+    <p class="empty">돌파 임박 종목이 없습니다.</p>
+    <p class="entry-note">* 표의 행을 누르면 차트가 바뀝니다. "진입가"는 장중 현재가 기준
+      참고값이라 종가·실제 체결가와 다를 수 있습니다. 실제 체결가 기준으로
+      손절가(×0.9)·1차(×1.1)·2차(×1.2)를 다시 계산해서 사용하세요.
+      투자 판단은 본인 책임입니다.</p>
+  </div>
+  <div id="chart"><p class="empty">표시할 종목이 없습니다.</p></div>
+  <div id="news"></div>
+</div>
+<script>
+function showChart(i) {
+  document.querySelectorAll('.chart-div').forEach(function (el) { el.classList.remove('active'); });
+  document.querySelectorAll('tr.row').forEach(function (el) { el.classList.remove('selected'); });
+  var target = document.getElementById('chart-' + i);
+  target.classList.add('active');
+  document.getElementById('row-' + i).classList.add('selected');
+  var gd = target.querySelector('.js-plotly-plot');
+  if (gd && window.Plotly) { Plotly.Plots.resize(gd); }
+  if (window.innerWidth <= 900) { target.scrollIntoView({behavior: 'smooth'}); }
+}
+var first = document.getElementById('row-0');
+if (first) { first.classList.add('selected'); }
+</script>
+</body>
+</html>
